@@ -17,7 +17,7 @@ import os
 
 class ImgVec_dataset:
     def __init__(self, particle_folder, image_size=(100, 100), file_format='.jpg'):
-        """Initialize the particle_folder, image size and images file format and build the dataset loader
+        """Initialize the particle_folder, image size and images file format and build the dataset loader"""
         self.home = particle_folder
         self.dataset_dir = os.path.join(particle_folder, 'dataset')
         self.top_dir = os.path.join(self.dataset_dir, 'top_view')
