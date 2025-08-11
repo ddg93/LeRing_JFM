@@ -1,0 +1,24 @@
+dataset:
+  particle_folder: 'ELL_r06'
+  image_size: [100,100]   
+  file_format: '.jpg'
+  test_size: 0.2
+  random_state: 42
+  batch_size: 256
+
+model:
+  convolutional_filters: [8,16]
+  convolutional_kernel_size: 5
+  pooling_size: 2
+  activation_function: 'tanh'
+  padding: 'valid'
+  dense_units: [32,32,32]
+  l2_regularization_weight: 0.001
+  dropout_rate: null
+  save_model: true
+
+training:
+  learning_rate: 0.001
+  penalty_weight: 1.0
+  epochs: 1
+  save_plots: true

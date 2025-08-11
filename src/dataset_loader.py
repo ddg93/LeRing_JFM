@@ -14,9 +14,10 @@ import tensorflow as tf
 import numpy as np
 import re
 import os
+from sklearn.model_selection import train_test_split
 
 class ImgVec_dataset:
-    def __init__(self, particle_folder, image_size=(100, 100), file_format='.jpg'):
+    def __init__(self, particle_folder, image_size=(100, 100), file_format='.jpg', test_size=0.2, random_state=42):
         """Initialize the particle_folder, image size and images file format and build the dataset loader"""
         self.home = particle_folder
         self.dataset_dir = os.path.join(particle_folder, 'dataset')
@@ -24,8 +25,15 @@ class ImgVec_dataset:
         self.side_dir = os.path.join(self.dataset_dir, 'side_view')
         self.image_size = image_size
         self.format = file_format
-        #build the dataset
-        self.dataset = self.build_dataset()
+        self.test_size = test_size
+        self.random_state = random_state
+	#list files and split
+        self.list_and_split()
+        
+	#build the training dataset
+        self.dataset_train = self.build_dataset(self.top_train,self.side_train)
+	#build the testing dataset
+        self.dataset_test  = self.build_dataset(self.top_test,self.side_test)
 
     @staticmethod
     def parse_label_from_filename(filename):
@@ -51,8 +59,8 @@ class ImgVec_dataset:
         files = [os.path.join(folder, f) for f in os.listdir(folder) if f.endswith(self.format)]
         return sorted(files)
 
-    def build_dataset(self):
-        """build the dataset with (x=(side-top), y=vector) paired images and particle orientation vector label"""
+    def list_and_split(self):
+        """list all files in the top and side folders, check files match and split into training and testing file lists"""
         #Get sorted file lists
         top_files = self.load_image_paths(self.top_dir)
         side_files = self.load_image_paths(self.side_dir)
@@ -62,6 +70,11 @@ class ImgVec_dataset:
             if os.path.basename(t)[3:] != os.path.basename(s)[4:]:
                 raise ValueError(f"Label mismatch: {t} vs {s}")
 
+        #split into train and test files
+        self.side_train, self.side_test, self.top_train, self.top_test = train_test_split(side_files, top_files, test_size=self.test_size, random_state=self.random_state)
+
+    def build_dataset(self,top_files,side_files):
+        """build the dataset with (x=(side-top), y=vector) paired images and particle orientation vector label from the given lists of top and side files"""
         #create the built-in tf datasets from top and side file lists
         top_ds = tf.data.Dataset.from_tensor_slices(top_files)
         side_ds = tf.data.Dataset.from_tensor_slices(side_files)
@@ -79,9 +92,9 @@ class ImgVec_dataset:
         #return the loader
         return dataset
 
-    def get_dataset(self, batch_size=32, shuffle=True):
+    def get_dataset(self, ds, batch_size=32, shuffle=True):
         """Apply the dataset loader with batch_size and optional shuffling"""
-        ds = self.dataset
         if shuffle:
             ds = ds.shuffle(buffer_size=1000)
         return ds.batch(batch_size).prefetch(tf.data.AUTOTUNE)
+
