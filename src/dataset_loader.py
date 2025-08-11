@@ -38,8 +38,8 @@ class ImgVec_dataset:
         vec = [float(res[-5]), float(res[-3]), float(res[-1])]
         return np.array(vec, dtype=np.float32)
     
-    @staticmethod
-    def load_and_preprocess(path):
+    def load_and_preprocess(self,path):
+        """load the path image, resize if necessary and normalize"""
         img = tf.io.read_file(path)
         img = tf.image.decode_jpeg(img, channels=1)
         img = tf.image.resize(img, self.image_size)
