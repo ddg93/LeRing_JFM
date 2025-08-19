@@ -33,7 +33,7 @@ def main(cnf):
 
     #load the dataset
     train_ds = loader.get_dataset(ds=loader.dataset_train,batch_size=cnf.batch_size)
-    test_ds = loader.get_dataset(ds=loader.dataset_test,batch_size=256,shuffle=False)
+    test_ds = loader.get_dataset(ds=loader.dataset_test,batch_size=cnf.batch_size,shuffle=False)
 
     #create the model
     model = build_two_head_LeNet(conv_filters=cnf.convolutional_filters,conv_kernel_size=cnf.convolutional_kernel_size,
